@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.osgi_3.8.1.v20120830-144521.jar" sourcepath="D:/eclipse/plugins/org.eclipse.osgi_3.8.1.v20120830-144521.jar"/>
-	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.core.commands_3.6.1.v20120814-150512.jar" sourcepath="D:/eclipse/plugins/org.eclipse.core.commands_3.6.1.v20120814-150512.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.core.commands_3.6.1.v20120814-150512.jar" sourcepath="C:/Program Files (x86)/Uni/eclipse scrum/eclipse/plugins/org.eclipse.core.commands.source_3.6.1.v20120814-150512.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar" sourcepath="D:/eclipse/plugins/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar" sourcepath="D:/eclipse/plugins/org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.core.runtime_3.8.0.v20120521-2346.jar" sourcepath="D:/eclipse/plugins/org.eclipse.core.runtime_3.8.0.v20120521-2346.jar"/>
@@ -20,6 +20,7 @@
 	<classpathentry exported="true" kind="lib" path="D:/eclipse/plugins/org.eclipse.ui.forms_3.5.200.v20120705-114351.jar" sourcepath="D:/eclipse/plugins/org.eclipse.ui.forms_3.5.200.v20120705-114351.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/Program Files/MATLAB/R2012b/toolbox/javabuilder/jar/javabuilder.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/Dropbox/idp/Quality_Control_Tool/Matlab_deployedClasses/kora_v1.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry exported="true" kind="lib" path="D:/Dropbox/idp/Quality_Control_Tool/jar/javabuilder.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
