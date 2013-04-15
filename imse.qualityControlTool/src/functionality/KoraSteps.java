@@ -20,35 +20,75 @@ public class KoraSteps {
 	private static int initialEpochPeriode = -1;
 	
 	/** step 1 - loading file*/
-	public static boolean KoraStep1(String currentPath, String currentFile){
+	public static boolean KoraStep1(String currentPath, String currentFile, String currentDevice){
 		checkKoraFunction();
 		
 		// out array for Epoch time
 		Object[] out;
 		
 		Object[] file_path = {currentPath,currentFile};
-		try {
-			out = matlabKoraFunctions.step1_loadFile(1, file_path);
-		} catch (MWException e1) {
-			Logger.log(MessageType.MATLAB_ERROR, "Error while loading "+ currentPath + currentFile +" into MATLAB routines! Kora Step1 incomplete!!");
-			return false;
-//			e1.printStackTrace();
-		} catch (Exception e) {
-			Logger.log(MessageType.ERROR, "Unknown error in step1!");
-			return false;
+		
+		switch (currentDevice){
+		case "ActiGraph (GT3x)": 
+			try {
+				out = matlabKoraFunctions.step1_loadFile(1, file_path);
+				}
+
+			catch (MWException e1) {
+				Logger.log(MessageType.MATLAB_ERROR, "Error while loading "+ currentPath + currentFile +" into MATLAB routines! Kora Step1 incomplete!! \n Check device type and try again!");
+				return false;
+//				e1.printStackTrace();
+			} catch (Exception e) {
+				Logger.log(MessageType.ERROR, "Unknown error in step1!");
+				return false;
+			}
+		
+			if(out != null && out.length > 0){
+				if(out[0] instanceof MWNumericArray) {
+					MWNumericArray ma = (MWNumericArray)out[0];
+					initialEpochPeriode = ma.getInt();
+				} else
+					Logger.log(MessageType.MATLAB_ERROR, "Wrong Matlab function return type!");
+			} else 
+				Logger.log(MessageType.MATLAB_ERROR, "Failed to receive epoch time from Matlab function!");
+			
+			Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
+			return true;
+		case "GT3x+":
+			Logger.log(MessageType.WARNING, "Please select a different device type!");
+			break;
+		case "GeneActive":
+			break;
+		case "Somnowatch":
+			break;
+		case "Shimmer":
+			break;
 		}
-		
-		if(out != null && out.length > 0){
-			if(out[0] instanceof MWNumericArray) {
-				MWNumericArray ma = (MWNumericArray)out[0];
-				initialEpochPeriode = ma.getInt();
-			} else
-				Logger.log(MessageType.MATLAB_ERROR, "Wrong Matlab function return type!");
-		} else 
-			Logger.log(MessageType.MATLAB_ERROR, "Failed to receive epoch time from Matlab function!");
-		
-		Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
-		return true;
+//		try {
+//			out = matlabKoraFunctions.step1_loadFile(1, file_path);
+//			}
+//
+//		catch (MWException e1) {
+//			Logger.log(MessageType.MATLAB_ERROR, "Error while loading "+ currentPath + currentFile +" into MATLAB routines! Kora Step1 incomplete!!");
+//			return false;
+////			e1.printStackTrace();
+//		} catch (Exception e) {
+//			Logger.log(MessageType.ERROR, "Unknown error in step1!");
+//			return false;
+//		}
+//	
+//		if(out != null && out.length > 0){
+//			if(out[0] instanceof MWNumericArray) {
+//				MWNumericArray ma = (MWNumericArray)out[0];
+//				initialEpochPeriode = ma.getInt();
+//			} else
+//				Logger.log(MessageType.MATLAB_ERROR, "Wrong Matlab function return type!");
+//		} else 
+//			Logger.log(MessageType.MATLAB_ERROR, "Failed to receive epoch time from Matlab function!");
+//		
+//		Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
+//		return true;
+		return false;
 	}
 	
 	/** step 2 - plot*/

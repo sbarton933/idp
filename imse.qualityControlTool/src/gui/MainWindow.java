@@ -15,6 +15,7 @@ import functionality.backend.MainControlsBackend;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Button;
 
 /**
  * Main Application Window including menu bar.

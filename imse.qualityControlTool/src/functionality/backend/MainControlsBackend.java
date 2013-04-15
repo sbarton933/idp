@@ -8,6 +8,7 @@ import functionality.StatusDistributionManager;
 import functionality.listeners.AnalyseButtonListener;
 import functionality.listeners.AnalyseSimonButtonListener;
 import functionality.listeners.ChangeEpochButtonListener;
+import functionality.listeners.ChangeFrequenzyButtonListener;
 import functionality.listeners.PlotAllButtonListener;
 import functionality.listeners.PlotRelevantButtonListener;
 import functionality.listeners.SelectionAdapterBase;
@@ -37,12 +38,13 @@ import util.CsvFileLoader;
 /**Functionality of {@link MainControls} is implemented here.
  * 
  * @author Johannes
+ * 
  *
  */
 public class MainControlsBackend extends MainControls {
 
 	/** possible devices */
-	private String[] devices = {"ActiGraph (gt3x, gt3x+)","GENEActive"};
+	private String[] devices = {"ActiGraph (GT3x)","GT3x+","GeneActive", "Somnowatch", "Shimmer"};
 	/** possible data measurements*/
 	private String[] data = {"count/epoch measurement", "raw data measurement"};
 	/** The currently used csv File loader*/
@@ -55,6 +57,12 @@ public class MainControlsBackend extends MainControls {
 	private PlotAllButtonListener plotAllListener;
 	/** Listener for epoch changing*/
 	private ChangeEpochButtonListener changeEpochButtonListener;
+	/** Listener for frequenzy changing*/
+	private ChangeFrequenzyButtonListener changeFrequenzyButtonListener;
+	/** currently chosen device*/
+	public String currentDevice = "ActiGraph (GT3x)";
+	/** currently chosen data type*/
+	public String currentData = "count/epoch measurement";
 
 	
 	/**Constructor */
@@ -66,23 +74,29 @@ public class MainControlsBackend extends MainControls {
 	/** Sets up functionality of all gui elements*/
 	private void setupFunctionality() {
 		// ----------------------------------------------------------------------------
+		// create distribution manager
+		StatusDistributionManager distributionManager = new StatusDistributionManager(browseButton);
+		// ----------------------------------------------------------------------------
 		// device selection
 		deviceCombo.setItems(devices);
 		deviceCombo.select(0);
-		// will be anabled in future releases
-		deviceCombo.setEnabled(false);
+		DeviceListener deviceListener = new DeviceListener();
+		deviceCombo.addSelectionListener(deviceListener);
+		distributionManager.register(deviceListener, null);
 		// ----------------------------------------------------------------------------
 		// data type selection
 		dataCombo.setItems(data);
 		dataCombo.select(0);
-		// will be enabled in future releases
-		dataCombo.setEnabled(false);
+		DataListener dataListener = new DataListener();
+		dataCombo.addSelectionListener(dataListener);
+		distributionManager.register(dataListener, null);
 		// ----------------------------------------------------------------------------
 		// epoch periode
 		epochScale.addSelectionListener(new EpochScaleSelectionListener());
 		// ----------------------------------------------------------------------------
-		// create distribution manager
-		StatusDistributionManager distributionManager = new StatusDistributionManager(browseButton);
+		// frequency
+		frequenzyScale.addSelectionListener(new FrequenzyScaleSelectionListener());
+		frequenzyScale.setEnabled(false);
 		// ----------------------------------------------------------------------------
 		// browse functionality
 		BrowseButtonListener browseListener = new BrowseButtonListener();
@@ -103,6 +117,13 @@ public class MainControlsBackend extends MainControls {
 		changeEpochButtonListener = new ChangeEpochButtonListener(btnChangeEpoch);
 		btnChangeEpoch.addSelectionListener(changeEpochButtonListener);
 		distributionManager.register(changeEpochButtonListener, plotRelevantListener);
+		
+		//Change Frequency functionality
+		btnChangeFrequenzy.setEnabled(false);
+		changeFrequenzyButtonListener = new ChangeFrequenzyButtonListener(btnChangeFrequenzy);
+		btnChangeFrequenzy.addSelectionListener(changeFrequenzyButtonListener);
+		distributionManager.register(changeFrequenzyButtonListener, plotRelevantListener);
+		
 		// ----------------------------------------------------------------------------
 		// wearing time functionality
 		WearingTimeButtonListener wearingTimeButtonListener = new WearingTimeButtonListener(btnWearingTime);
@@ -123,6 +144,7 @@ public class MainControlsBackend extends MainControls {
 		// set up util map
 		setupIntToLetterMap();
 		// ----------------------------------------------------------------------------
+		
 	
 		final Thread distributionThread = new Thread(distributionManager);
 		distributionThread.setName("DistributionManager");
@@ -153,6 +175,92 @@ public class MainControlsBackend extends MainControls {
 			epochScale.setIncrement(currentEpoch);
 			epochScale.setPageIncrement(currentEpoch);
 			
+		}
+	}
+	
+	/** Selection Listener for frequenzy scale*/
+	private class FrequenzyScaleSelectionListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e){
+			Scale s = (Scale)e.getSource();
+			int current = s.getSelection();
+			frequenzyText.setText(current + "");
+			s.setToolTipText(current + "");
+			changeFrequenzyButtonListener.setFrenquenzy(current);
+			
+//			int currentFrequenzy = s
+			
+		}
+	}
+	
+	/** Selection listener for device */
+	private class DeviceListener extends SelectionAdapterBase{
+		public DeviceListener() {
+			this.isStepFinished = false;
+		}
+
+		@Override
+		public boolean finished() {
+			return isStepFinished;
+		}
+	
+		@Override
+		public void notifyWaiting() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void reset() {
+			isStepFinished = false;
+			
+		}
+		@Override
+		public void widgetSelected(SelectionEvent event) {
+		currentDevice = deviceCombo.getText();
+		
+		}
+	}
+	
+	/** Selection listener for data */
+	private class DataListener extends SelectionAdapterBase{
+		public DataListener() {
+			this.isStepFinished = false;
+		}
+
+		@Override
+		public boolean finished() {
+			return isStepFinished;
+		}
+	
+		@Override
+		public void notifyWaiting() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void reset() {
+			isStepFinished = false;
+			
+		}
+		@Override
+		public void widgetSelected(SelectionEvent event) {
+		currentData = dataCombo.getText();
+		
+		if (currentData.equals("raw data measurement")){
+			frequenzyScale.setEnabled(true);
+			btnChangeFrequenzy.setEnabled(true);
+			Logger.log(MessageType.NOTIFICATION, "Please adapt frequency");
+			return;
+		}
+		
+		if (currentData.equals("count/epoch measurement")){
+			frequenzyScale.setEnabled(false);
+			btnChangeFrequenzy.setEnabled(false);
+			return;
+		}
+		
 		}
 	}
 	
@@ -196,7 +304,7 @@ public class MainControlsBackend extends MainControls {
 				plotAllListener.updatePathAndFile(currentPath, currentFile);
 			}
 			
-			isStepFinished = KoraSteps.KoraStep1(currentPath, currentFile);
+			isStepFinished = KoraSteps.KoraStep1(currentPath, currentFile, currentDevice);
 			
 			// update Epoch periode
 			int currentEpoch = KoraSteps.getInitialEpochPeriode();

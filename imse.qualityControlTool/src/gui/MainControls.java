@@ -42,6 +42,11 @@ public class MainControls extends Composite {
 	public Button btnChangeEpoch;
 	public Button btnAnalyseDataSimon;
 	public Button btnWearingTime;
+	private Label lblFrequenzy;
+	protected Scale frequenzyScale;
+	private Label lblHz;
+	public Text frequenzyText;
+	public Button btnChangeFrequenzy;
 
 	/**
 	 * Create the composite.
@@ -110,7 +115,31 @@ public class MainControls extends Composite {
 		epochText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label labelSek = new Label(composite, SWT.NONE);
+		GridData gd_labelSek = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_labelSek.widthHint = 12;
+		labelSek.setLayoutData(gd_labelSek);
 		labelSek.setText("s");
+		
+		lblFrequenzy = new Label(composite, SWT.NONE);
+		lblFrequenzy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		formToolkit.adapt(lblFrequenzy, true, true);
+		lblFrequenzy.setText("Frequenzy");
+		
+		frequenzyScale = new Scale(composite, SWT.NONE);
+		frequenzyScale.setMaximum(250);
+		frequenzyScale.setMinimum(1);
+		frequenzyScale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		formToolkit.adapt(frequenzyScale, true, true);
+		
+		frequenzyText = new Text(composite, SWT.BORDER | SWT.RIGHT);
+		frequenzyText.setText("1");
+		frequenzyText.setEditable(false);
+		frequenzyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		formToolkit.adapt(frequenzyText, true, true);
+		
+		lblHz = new Label(composite, SWT.NONE);
+		formToolkit.adapt(lblHz, true, true);
+		lblHz.setText("Hz");
 		
 		csvPreviewLabel = new Label(this, SWT.NONE);
 		GridData gd_csvPreviewLabel = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
@@ -160,6 +189,10 @@ public class MainControls extends Composite {
 		formToolkit.adapt(btnChangeEpoch, true, true);
 		btnChangeEpoch.setText("Change Epoch");
 		btnChangeEpoch.setBackground(new Color(null, 255, 0, 0));
+		
+		btnChangeFrequenzy = new Button(composite_1, SWT.NONE);
+		btnChangeFrequenzy.setText("Change Frequency");
+		formToolkit.adapt(btnChangeFrequenzy, true, true);
 		
 		btnWearingTime = new Button(composite_1, SWT.NONE);
 		btnWearingTime.addSelectionListener(new SelectionAdapter() {

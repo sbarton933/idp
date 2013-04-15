@@ -9,6 +9,7 @@ import log.MessageType;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import functionality.KoraSteps;
+import functionality.backend.MainControlsBackend;
 
 /**SelectionAdapter for plotting all initial data 
  * 
@@ -39,11 +40,13 @@ public class PlotAllButtonListener extends SelectionAdapterBase {
 			Logger.log(MessageType.WARNING, "Please select a file first!");
 			return;
 		}
-
+		
+		//TODO: Check if ok
 		// plot the csv file
-		isStepFinished = KoraSteps.KoraStep2(path,file);
-		if(!isStepFinished)
-			return;
+			isStepFinished = KoraSteps.KoraStep2(path,file);
+			if(!isStepFinished)
+				return;
+		
 		
 	}
 	
