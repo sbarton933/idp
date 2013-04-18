@@ -8,9 +8,9 @@ import functionality.StatusDistributionManager;
 import functionality.listeners.AnalyseButtonListener;
 import functionality.listeners.AnalyseSimonButtonListener;
 import functionality.listeners.ChangeEpochButtonListener;
-import functionality.listeners.ChangeFrequenzyButtonListener;
 import functionality.listeners.PlotAllButtonListener;
 import functionality.listeners.PlotRelevantButtonListener;
+import functionality.listeners.RawToCountsListener;
 import functionality.listeners.SelectionAdapterBase;
 import functionality.listeners.WearingTimeButtonListener;
 import gui.MainControls;
@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import util.CsvFileLoader;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 /**Functionality of {@link MainControls} is implemented here.
  * 
@@ -44,7 +45,7 @@ import util.CsvFileLoader;
 public class MainControlsBackend extends MainControls {
 
 	/** possible devices */
-	private String[] devices = {"ActiGraph (GT3x)","GT3x+","GeneActive", "Somnowatch", "Shimmer"};
+	private String[] devices = {"ActiGraph GT3x","ActiGraph GT3x+","GeneActive", "Somnowatch", "Shimmer"};
 	/** possible data measurements*/
 	private String[] data = {"count/epoch measurement", "raw data measurement"};
 	/** The currently used csv File loader*/
@@ -55,10 +56,10 @@ public class MainControlsBackend extends MainControls {
 	public String currentPath;
 	/** The plot button Listener*/
 	private PlotAllButtonListener plotAllListener;
+	/** The plot button Listener*/
+	private RawToCountsListener rawToCountsListener;
 	/** Listener for epoch changing*/
 	private ChangeEpochButtonListener changeEpochButtonListener;
-	/** Listener for frequenzy changing*/
-	private ChangeFrequenzyButtonListener changeFrequenzyButtonListener;
 	/** currently chosen device*/
 	public String currentDevice = "ActiGraph (GT3x)";
 	/** currently chosen data type*/
@@ -68,6 +69,9 @@ public class MainControlsBackend extends MainControls {
 	/**Constructor */
 	public MainControlsBackend(Composite parent, int style) {
 		super(parent, style);
+		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		frequenzyText.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		frequenzyScale.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		setupFunctionality();
 	}
 
@@ -103,6 +107,11 @@ public class MainControlsBackend extends MainControls {
 		browseButton.addSelectionListener(browseListener);
 		distributionManager.register(browseListener, null);
 		// ----------------------------------------------------------------------------
+		// Calculate epoch data from raw data
+		rawToCountsListener = new RawToCountsListener(currentPath, currentFile, btnRawToCounts);
+		distributionManager.register(rawToCountsListener, browseListener);
+		btnRawToCounts.addSelectionListener(rawToCountsListener);
+		// ----------------------------------------------------------------------------
 		// Plot all data + cut functionality
 		plotAllListener = new PlotAllButtonListener(currentPath, currentFile, btnPlotAllData);
 		distributionManager.register(plotAllListener, browseListener);
@@ -117,12 +126,6 @@ public class MainControlsBackend extends MainControls {
 		changeEpochButtonListener = new ChangeEpochButtonListener(btnChangeEpoch);
 		btnChangeEpoch.addSelectionListener(changeEpochButtonListener);
 		distributionManager.register(changeEpochButtonListener, plotRelevantListener);
-		
-		//Change Frequency functionality
-		btnChangeFrequenzy.setEnabled(false);
-		changeFrequenzyButtonListener = new ChangeFrequenzyButtonListener(btnChangeFrequenzy);
-		btnChangeFrequenzy.addSelectionListener(changeFrequenzyButtonListener);
-		distributionManager.register(changeFrequenzyButtonListener, plotRelevantListener);
 		
 		// ----------------------------------------------------------------------------
 		// wearing time functionality
@@ -186,7 +189,6 @@ public class MainControlsBackend extends MainControls {
 			int current = s.getSelection();
 			frequenzyText.setText(current + "");
 			s.setToolTipText(current + "");
-			changeFrequenzyButtonListener.setFrenquenzy(current);
 			
 //			int currentFrequenzy = s
 			
@@ -250,14 +252,12 @@ public class MainControlsBackend extends MainControls {
 		
 		if (currentData.equals("raw data measurement")){
 			frequenzyScale.setEnabled(true);
-			btnChangeFrequenzy.setEnabled(true);
 			Logger.log(MessageType.NOTIFICATION, "Please adapt frequency");
 			return;
 		}
 		
 		if (currentData.equals("count/epoch measurement")){
 			frequenzyScale.setEnabled(false);
-			btnChangeFrequenzy.setEnabled(false);
 			return;
 		}
 		

@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 /**Main Controls below menu bar.
  * Only GUI elements. Functionality is implemented in backend.
@@ -46,7 +47,7 @@ public class MainControls extends Composite {
 	protected Scale frequenzyScale;
 	private Label lblHz;
 	public Text frequenzyText;
-	public Button btnChangeFrequenzy;
+	public Button btnRawToCounts;
 
 	/**
 	 * Create the composite.
@@ -61,6 +62,7 @@ public class MainControls extends Composite {
 		setLayout(new GridLayout(1, false));
 		
 		Composite composite = new Composite(this, SWT.NONE);
+		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		composite.setLayout(new GridLayout(4, false));
 		
@@ -121,9 +123,10 @@ public class MainControls extends Composite {
 		labelSek.setText("s");
 		
 		lblFrequenzy = new Label(composite, SWT.NONE);
+		lblFrequenzy.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		lblFrequenzy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		formToolkit.adapt(lblFrequenzy, true, true);
-		lblFrequenzy.setText("Frequenzy");
+		lblFrequenzy.setText("Frequency");
 		
 		frequenzyScale = new Scale(composite, SWT.NONE);
 		frequenzyScale.setMaximum(250);
@@ -138,6 +141,7 @@ public class MainControls extends Composite {
 		formToolkit.adapt(frequenzyText, true, true);
 		
 		lblHz = new Label(composite, SWT.NONE);
+		lblHz.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		formToolkit.adapt(lblHz, true, true);
 		lblHz.setText("Hz");
 		
@@ -185,14 +189,21 @@ public class MainControls extends Composite {
 		btnPlotRelevantData.setText("Plot Relevant Data");
 		btnPlotRelevantData.setBackground(new Color(null, 255, 0, 0));
 		
+		btnRawToCounts = new Button(composite_1, SWT.NONE);
+		btnRawToCounts.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+			}
+		});
+		btnRawToCounts.setText("Raw to Counts/METs");
+		btnRawToCounts.setBackground(new Color(null, 255, 0, 0));
+		formToolkit.adapt(btnRawToCounts, true, true);
+		
 		btnChangeEpoch = new Button(composite_1, SWT.NONE);
 		formToolkit.adapt(btnChangeEpoch, true, true);
 		btnChangeEpoch.setText("Change Epoch");
 		btnChangeEpoch.setBackground(new Color(null, 255, 0, 0));
-		
-		btnChangeFrequenzy = new Button(composite_1, SWT.NONE);
-		btnChangeFrequenzy.setText("Change Frequency");
-		formToolkit.adapt(btnChangeFrequenzy, true, true);
 		
 		btnWearingTime = new Button(composite_1, SWT.NONE);
 		btnWearingTime.addSelectionListener(new SelectionAdapter() {
