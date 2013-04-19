@@ -34,7 +34,9 @@ public class KoraSteps {
 		// Find sensor name in loading data
 		try {
 			Object[] cD = matlabKoraFunctions2.FindSensorName(1, file_path);
-			currentDevice = cD[0].toString();
+			if (!cD[0].toString().equals("Could not found!!!")){
+				currentDevice = cD[0].toString();
+			}
 			System.out.println(currentDevice);
 			MainControlsBackend.setCurrentDevice(currentDevice);
 			
@@ -123,6 +125,10 @@ public class KoraSteps {
 		case "Somnowatch":
 			break;
 		case "Shimmer":
+			break;
+		case "Default":
+			MainControlsBackend.enableDeviceCombo();
+			Logger.log(MessageType.NOTIFICATION, "Please choose correct device type and browse again!");
 			break;
 		}
 		return false;

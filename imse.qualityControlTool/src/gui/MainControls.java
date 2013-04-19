@@ -31,7 +31,7 @@ public class MainControls extends Composite {
 	protected Table table;
 	protected Combo browseCombo;
 	protected Button browseButton;
-	protected Combo deviceCombo;
+	protected static Combo deviceCombo;
 	protected Combo dataCombo;
 	protected Scale epochScale;
 	protected Text epochText;

@@ -61,7 +61,7 @@ public class MainControlsBackend extends MainControls {
 	/** Listener for epoch changing*/
 	private ChangeEpochButtonListener changeEpochButtonListener;
 	/** currently chosen device*/
-	public static String currentDevice = "ActiGraph (GT3x)";
+	public static String currentDevice = "Default";
 	/** currently chosen data type*/
 	public String currentData = "count/epoch measurement";
 
@@ -388,6 +388,11 @@ public class MainControlsBackend extends MainControls {
 
 	public static void setCurrentDevice(String currentDevice2) {
 		currentDevice = currentDevice2;
+		
+	}
+
+	public static void enableDeviceCombo() {
+		deviceCombo.setEnabled(true);
 		
 	}
 }
