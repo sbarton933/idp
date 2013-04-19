@@ -6,17 +6,19 @@ import org.eclipse.swt.widgets.Shell;
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
 
+import functionality.backend.MainControlsBackend;
 import functionality.backend.PlotGUIBackend;
 
-//import kora_v1.KORA_v1;
+import kora_v2.KORA_v1;
 import log.Logger;
 import log.MessageType;
-import test.KORA_v1;
+import test.KORA_v2;
 
 public class KoraSteps {
 
 	/** TODO check for virtual function call error*/
 	private static KORA_v1 matlabKoraFunctions=null;
+	private static KORA_v2 matlabKoraFunctions2 = null;
 	
 	private static int initialEpochPeriode = -1;
 	private static int initialFrequency = 1;
@@ -24,13 +26,26 @@ public class KoraSteps {
 	/** step 1 - loading file*/
 	public static boolean KoraStep1(String currentPath, String currentFile, String currentDevice){
 		checkKoraFunction();
+		checkKoraFunction2();
 		// out array for Epoch time
 		Object[] out;
-		
 		Object[] file_path = {currentPath,currentFile};
 		
+		// Find sensor name in loading data
+		try {
+			Object[] cD = matlabKoraFunctions2.FindSensorName(1, file_path);
+			currentDevice = cD[0].toString();
+			System.out.println(currentDevice);
+			MainControlsBackend.setCurrentDevice(currentDevice);
+			
+		} catch (MWException e2) {
+			Logger.log(MessageType.ERROR, "Unknown Device Type!");
+			e2.printStackTrace();
+		}
+		
 		switch (currentDevice){
-		case "ActiGraph GT3x": 
+		case "ActiGraph GT3X": 
+			
 			try {
 				out = matlabKoraFunctions.step1_loadFile(1, file_path);
 				}
@@ -55,9 +70,9 @@ public class KoraSteps {
 			
 			Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
 			return true;
-		case "ActiGraph GT3x+":
+		case "ActiGraph GT3X+":
 			try {
-				out = matlabKoraFunctions.step1_loadFile_GT3xplus(1, file_path);
+				out = matlabKoraFunctions2.step1_loadFile_GT3xplus(1, file_path);
 				}
 
 			catch (MWException e1) {
@@ -65,7 +80,7 @@ public class KoraSteps {
 				return false;
 //				e1.printStackTrace();
 			} catch (Exception e) {
-				Logger.log(MessageType.ERROR, "Unknown error in step1!");
+				Logger.log(MessageType.ERROR, "Unknown error in step1 with GT3x+!");
 				return false;
 			}
 		
@@ -82,7 +97,7 @@ public class KoraSteps {
 			return true;
 		case "GeneActive":
 			try {
-				out = matlabKoraFunctions.step1_loadFile_GeneActive(1, file_path);
+				out = matlabKoraFunctions2.step1_loadFile_GeneActive(1, file_path);
 				}
 
 			catch (MWException e1) {
@@ -114,11 +129,12 @@ public class KoraSteps {
 	}
 	
 	public static boolean RawDataToEpoch(String currentPath, String currentFile){
-		checkKoraFunction();
+		checkKoraFunction2();
 		
-		Object[] file_path = {currentPath,currentFile};
+		Object[] file_path = {currentPath, currentFile};
+		
 		try {
-			matlabKoraFunctions.calculateCounts(1, file_path);
+			matlabKoraFunctions2.calculateCounts(1, file_path);
 		} catch (MWException e) {
 			Logger.log(MessageType.MATLAB_ERROR, "Error while calculating epoch data out of: " + currentPath + currentFile);
 			return false;
@@ -133,17 +149,31 @@ public class KoraSteps {
 	}
 	
 	/** step 2 - plot*/
-	public static boolean KoraStep2(String path, String file) {
+	public static boolean KoraStep2(String path, String file, String currentDataType) {
 		checkKoraFunction();
-	
-		try {
-			matlabKoraFunctions.step2_plotFile();
-		} catch (MWException e) {
-			Logger.log(MessageType.MATLAB_ERROR, "Error while plotting: " + path + file);
-			return false;
-		} catch (Exception e) {
-			Logger.log(MessageType.ERROR, "Unknown error step2!");
-			return false;
+		switch (currentDataType){
+		case "count/epoch measurement":
+			try {
+				matlabKoraFunctions.step2_plotFile();
+			} catch (MWException e) {
+				Logger.log(MessageType.MATLAB_ERROR, "Error while plotting: " + path + file);
+				return false;
+			} catch (Exception e) {
+				Logger.log(MessageType.ERROR, "Unknown error step2!");
+				return false;
+			}
+			break;
+		case "raw data measurement":
+			try {
+				matlabKoraFunctions.step2_plotFile();
+			} catch (MWException e) {
+				Logger.log(MessageType.MATLAB_ERROR, "Error while plotting: " + path + file);
+				return false;
+			} catch (Exception e) {
+				Logger.log(MessageType.ERROR, "Unknown error step2!");
+				return false;
+			}
+			break;
 		}
 		
 		PlotGUIBackend shell = new PlotGUIBackend(Display.getDefault(), true);
@@ -277,7 +307,6 @@ public class KoraSteps {
 	
 		if(matlabKoraFunctions!=null)
 			matlabKoraFunctions.dispose();
-		
 
 		try {
 			matlabKoraFunctions= new KORA_v1();
@@ -290,9 +319,28 @@ public class KoraSteps {
 		
 	}
 	
+	/** Check if matlab functions are already initiated*/
+	private static void checkKoraFunction2() {
+	
+		if(matlabKoraFunctions2 !=null)
+			matlabKoraFunctions2.dispose();
+
+		try {
+			matlabKoraFunctions2 = new KORA_v2();
+		} catch (MWException e) {
+			Logger.log(MessageType.ERROR, "Error while loading Matlab classes! Cannot execute program!");
+		}catch (Exception e) {
+			Logger.log(MessageType.ERROR, "Unknown error in checkKoraFunction2()");
+			return;
+		}
+		
+	}
+	
 	/** disposes existing matlab instance*/
 	public static void dispose(){
 		if(matlabKoraFunctions!=null)
 			matlabKoraFunctions.dispose();
+		if(matlabKoraFunctions2!=null)
+			matlabKoraFunctions2.dispose();
 	}
 }

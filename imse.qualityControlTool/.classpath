@@ -6,6 +6,7 @@
 	<classpathentry kind="lib" path="C:/Program Files/MATLAB/R2012b/toolbox/javabuilder/jar/javabuilder.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Sarah/Documents/Uni/6.Semester/Klinisches Anwendungspraktikum/Matlab_deployedClasses/kora_v1.jar" sourcepath="C:/Users/Sarah/Documents/Uni/6.Semester/Klinisches Anwendungspraktikum/Matlab_deployedClasses/kora_v1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Sarah/Documents/Uni/6.Semester/Klinisches Anwendungspraktikum/idp/QualityControlTool 1.0/QualityControlTool.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sarah/Documents/Uni/6.Semester/Klinisches Anwendungspraktikum/kora_v2/src/kora_v2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Sarah/Documents/Uni/6.Semester/Klinisches Anwendungspraktikum/test/src/test.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -25,13 +25,16 @@ public class PlotAllButtonListener extends SelectionAdapterBase {
 	/** Plot all button */
 	private Button thisButton;
 	
+	private String currentData;
+	
 	/** Constructor */
-	public PlotAllButtonListener(String path, String file, Button thisButton){
+	public PlotAllButtonListener(String path, String file, Button thisButton, String currentData){
 		this.path = path;
 		this.file = file;
 		this.thisButton = thisButton;
 		this.isWaiting = true;
 		this.isStepFinished = false;
+		this.currentData = currentData;
 	}
 	
 	@Override
@@ -43,7 +46,7 @@ public class PlotAllButtonListener extends SelectionAdapterBase {
 		
 		//TODO: Check if ok
 		// plot the csv file
-			isStepFinished = KoraSteps.KoraStep2(path,file);
+			isStepFinished = KoraSteps.KoraStep2(path,file,currentData);
 			if(!isStepFinished)
 				return;
 		

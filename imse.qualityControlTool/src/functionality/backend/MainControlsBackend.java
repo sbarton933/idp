@@ -45,7 +45,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 public class MainControlsBackend extends MainControls {
 
 	/** possible devices */
-	private String[] devices = {"ActiGraph GT3x","ActiGraph GT3x+","GeneActive", "Somnowatch", "Shimmer"};
+	private String[] devices = {"ActiGraph GT3X","ActiGraph GT3X+","GeneActive", "Somnowatch", "Shimmer"};
 	/** possible data measurements*/
 	private String[] data = {"count/epoch measurement", "raw data measurement"};
 	/** The currently used csv File loader*/
@@ -61,7 +61,7 @@ public class MainControlsBackend extends MainControls {
 	/** Listener for epoch changing*/
 	private ChangeEpochButtonListener changeEpochButtonListener;
 	/** currently chosen device*/
-	public String currentDevice = "ActiGraph (GT3x)";
+	public static String currentDevice = "ActiGraph (GT3x)";
 	/** currently chosen data type*/
 	public String currentData = "count/epoch measurement";
 
@@ -87,6 +87,7 @@ public class MainControlsBackend extends MainControls {
 		DeviceListener deviceListener = new DeviceListener();
 		deviceCombo.addSelectionListener(deviceListener);
 		distributionManager.register(deviceListener, null);
+		deviceCombo.setEnabled(false);
 		// ----------------------------------------------------------------------------
 		// data type selection
 		dataCombo.setItems(data);
@@ -113,7 +114,7 @@ public class MainControlsBackend extends MainControls {
 		btnRawToCounts.addSelectionListener(rawToCountsListener);
 		// ----------------------------------------------------------------------------
 		// Plot all data + cut functionality
-		plotAllListener = new PlotAllButtonListener(currentPath, currentFile, btnPlotAllData);
+		plotAllListener = new PlotAllButtonListener(currentPath, currentFile, btnPlotAllData, currentData);
 		distributionManager.register(plotAllListener, browseListener);
 		btnPlotAllData.addSelectionListener(plotAllListener);
 		// ----------------------------------------------------------------------------
@@ -306,6 +307,8 @@ public class MainControlsBackend extends MainControls {
 			
 			isStepFinished = KoraSteps.KoraStep1(currentPath, currentFile, currentDevice);
 			
+			deviceCombo.setText(currentDevice);
+			
 			// update Epoch periode
 			int currentEpoch = KoraSteps.getInitialEpochPeriode();
 			epochScale.setMinimum(currentEpoch);
@@ -380,6 +383,11 @@ public class MainControlsBackend extends MainControls {
 		table.redraw();
 		
 
+		
+	}
+
+	public static void setCurrentDevice(String currentDevice2) {
+		currentDevice = currentDevice2;
 		
 	}
 }
