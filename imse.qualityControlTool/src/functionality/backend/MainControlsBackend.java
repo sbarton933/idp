@@ -8,6 +8,7 @@ import functionality.StatusDistributionManager;
 import functionality.listeners.AnalyseButtonListener;
 import functionality.listeners.AnalyseSimonButtonListener;
 import functionality.listeners.ChangeEpochButtonListener;
+import functionality.listeners.LoadButtonListener;
 import functionality.listeners.PlotAllButtonListener;
 import functionality.listeners.PlotRelevantButtonListener;
 import functionality.listeners.RawToCountsListener;
@@ -63,8 +64,13 @@ public class MainControlsBackend extends MainControls {
 	/** currently chosen device*/
 	public static String currentDevice = "Default";
 	/** currently chosen data type*/
-	public String currentData = "count/epoch measurement";
+	public static String currentData = "count/epoch measurement";
+	/** current Frequency*/
+	public static String currentFrequency = "0";
+	/** The load button Listener*/
+	private LoadButtonListener loadListener;
 
+	private static int currentIntFrequency = 0;
 	
 	/**Constructor */
 	public MainControlsBackend(Composite parent, int style) {
@@ -95,6 +101,7 @@ public class MainControlsBackend extends MainControls {
 		DataListener dataListener = new DataListener();
 		dataCombo.addSelectionListener(dataListener);
 		distributionManager.register(dataListener, null);
+		dataCombo.setEnabled(false);
 		// ----------------------------------------------------------------------------
 		// epoch periode
 		epochScale.addSelectionListener(new EpochScaleSelectionListener());
@@ -110,12 +117,19 @@ public class MainControlsBackend extends MainControls {
 		// ----------------------------------------------------------------------------
 		// Calculate epoch data from raw data
 		rawToCountsListener = new RawToCountsListener(currentPath, currentFile, btnRawToCounts);
-		distributionManager.register(rawToCountsListener, browseListener);
+		distributionManager.register(rawToCountsListener, loadListener);
 		btnRawToCounts.addSelectionListener(rawToCountsListener);
+		// ----------------------------------------------------------------------------
+		// Load functionality
+		loadListener = new LoadButtonListener(currentPath, currentFile, btnLoad,
+				currentData, currentDevice, currentIntFrequency);
+		distributionManager.register(loadListener, browseListener);
+		btnLoad.addSelectionListener(loadListener);
+		
 		// ----------------------------------------------------------------------------
 		// Plot all data + cut functionality
 		plotAllListener = new PlotAllButtonListener(currentPath, currentFile, btnPlotAllData, currentData);
-		distributionManager.register(plotAllListener, browseListener);
+		distributionManager.register(plotAllListener, loadListener);
 		btnPlotAllData.addSelectionListener(plotAllListener);
 		// ----------------------------------------------------------------------------
 		// Plot relevant data
@@ -182,7 +196,7 @@ public class MainControlsBackend extends MainControls {
 		}
 	}
 	
-	/** Selection Listener for frequenzy scale*/
+	/** Selection Listener for frequency scale*/
 	private class FrequenzyScaleSelectionListener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e){
@@ -191,6 +205,9 @@ public class MainControlsBackend extends MainControls {
 			frequenzyText.setText(current + "");
 			s.setToolTipText(current + "");
 			
+			currentIntFrequency = current;
+			currentFrequency = Integer.toString(currentIntFrequency);
+			loadListener.updateFrequency(currentIntFrequency);
 //			int currentFrequenzy = s
 			
 		}
@@ -221,6 +238,7 @@ public class MainControlsBackend extends MainControls {
 		@Override
 		public void widgetSelected(SelectionEvent event) {
 		currentDevice = deviceCombo.getText();
+		loadListener.updateDevice(currentDevice);
 		
 		}
 	}
@@ -250,6 +268,7 @@ public class MainControlsBackend extends MainControls {
 		@Override
 		public void widgetSelected(SelectionEvent event) {
 		currentData = dataCombo.getText();
+		loadListener.updateDataType(currentData);
 		
 		if (currentData.equals("raw data measurement")){
 			frequenzyScale.setEnabled(true);
@@ -305,20 +324,35 @@ public class MainControlsBackend extends MainControls {
 				plotAllListener.updatePathAndFile(currentPath, currentFile);
 			}
 			
-			isStepFinished = KoraSteps.KoraStep1(currentPath, currentFile, currentDevice);
-			
+			// Do precalculations and set correct device, data type and frequency if needed
+			isStepFinished = KoraSteps.precalculation(currentPath, currentFile, currentDevice);
 			deviceCombo.setText(currentDevice);
+			enableDeviceCombo();
+			enableDataCombo();
+			loadListener.updateDeviceAndDataType(currentDevice, currentData);
+			if (!currentFrequency.equals("0")){
+				frequenzyText.setText(currentFrequency);
+				enableFrequencyScale();
+				currentIntFrequency = Integer.parseInt(currentFrequency);
+				frequenzyScale.setSelection(currentIntFrequency);
+				loadListener.updateFrequency(currentIntFrequency);
+			}
+
 			
-			// update Epoch periode
-			int currentEpoch = KoraSteps.getInitialEpochPeriode();
-			epochScale.setMinimum(currentEpoch);
-			// maximum epoch time is 60s
-			int maxEpoch = 60;
-			epochScale.setMaximum(maxEpoch);
-			epochScale.setIncrement(currentEpoch);
-			epochScale.setPageIncrement(currentEpoch);
-			epochText.setText(currentEpoch + "");
-			changeEpochButtonListener.setEpochTime(currentEpoch);
+//			isStepFinished = KoraSteps.KoraStep1(currentPath, currentFile, currentDevice);
+//			
+//			deviceCombo.setText(currentDevice);
+//			
+//			// update Epoch periode
+//			int currentEpoch = KoraSteps.getInitialEpochPeriode();
+//			epochScale.setMinimum(currentEpoch);
+//			// maximum epoch time is 60s
+//			int maxEpoch = 60;
+//			epochScale.setMaximum(maxEpoch);
+//			epochScale.setIncrement(currentEpoch);
+//			epochScale.setPageIncrement(currentEpoch);
+//			epochText.setText(currentEpoch + "");
+//			changeEpochButtonListener.setEpochTime(currentEpoch);
 			
 		}
 		
@@ -388,11 +422,25 @@ public class MainControlsBackend extends MainControls {
 
 	public static void setCurrentDevice(String currentDevice2) {
 		currentDevice = currentDevice2;
-		
 	}
 
 	public static void enableDeviceCombo() {
 		deviceCombo.setEnabled(true);
 		
+	}
+	
+	public void enableFrequencyScale(){
+		frequenzyScale.setEnabled(true);
+	}
+	
+	public static void enableDataCombo() {
+		dataCombo.setEnabled(true);
+	}
+
+	public static void setCurrentFrequency(String currentFrequency2) {
+		currentFrequency = currentFrequency2;
+		//Set data type to "Raw Data"
+		currentData = "raw data measurement";
+		dataCombo.setText(currentData);
 	}
 }

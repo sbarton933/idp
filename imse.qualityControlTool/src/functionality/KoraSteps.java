@@ -23,8 +23,7 @@ public class KoraSteps {
 	private static int initialEpochPeriode = -1;
 	private static int initialFrequency = 1;
 	
-	/** step 1 - loading file*/
-	public static boolean KoraStep1(String currentPath, String currentFile, String currentDevice){
+	public static boolean precalculation(String currentPath, String currentFile, String currentDevice){
 		checkKoraFunction();
 		checkKoraFunction2();
 		// out array for Epoch time
@@ -36,105 +35,138 @@ public class KoraSteps {
 			Object[] cD = matlabKoraFunctions2.FindSensorName(1, file_path);
 			if (!cD[0].toString().equals("Could not found!!!")){
 				currentDevice = cD[0].toString();
+				MainControlsBackend.setCurrentDevice(currentDevice);
 			}
-			System.out.println(currentDevice);
-			MainControlsBackend.setCurrentDevice(currentDevice);
 			
 		} catch (MWException e2) {
 			Logger.log(MessageType.ERROR, "Unknown Device Type!");
 			e2.printStackTrace();
 		}
 		
-		switch (currentDevice){
-		case "ActiGraph GT3X": 
-			
-			try {
-				out = matlabKoraFunctions.step1_loadFile(1, file_path);
-				}
-
-			catch (MWException e1) {
-				Logger.log(MessageType.MATLAB_ERROR, "Error while loading "+ currentPath + currentFile +" into MATLAB routines! Kora Step1 incomplete!! \n Check device type and try again!");
-				return false;
-//				e1.printStackTrace();
-			} catch (Exception e) {
-				Logger.log(MessageType.ERROR, "Unknown error in step1!");
-				return false;
+		String currentFrequency;
+		//Find Sensor frequency
+		try {
+			Object[] cF = matlabKoraFunctions2.FindSensorFrequency(1, file_path);
+			if (!cF[0].toString().equals("0")){
+				currentFrequency = cF[0].toString();
+				MainControlsBackend.setCurrentFrequency(currentFrequency);
 			}
-		
-			if(out != null && out.length > 0){
-				if(out[0] instanceof MWNumericArray) {
-					MWNumericArray ma = (MWNumericArray)out[0];
-					initialEpochPeriode = ma.getInt();
-				} else
-					Logger.log(MessageType.MATLAB_ERROR, "Wrong Matlab function return type!");
-			} else 
-				Logger.log(MessageType.MATLAB_ERROR, "Failed to receive epoch time from Matlab function!");
 			
+		} catch (MWException e2) {
+			Logger.log(MessageType.ERROR, "Unknown Frequency!");
+			e2.printStackTrace();
+		}
+		
+		Logger.log(MessageType.NOTIFICATION, "Precalculations where successful. \n Check allocations and press 'Load'");
+		return true;
+	}
+	
+	/** step 1 - loading file*/
+	public static boolean KoraStep1(String currentPath, String currentFile,
+			String currentData, String currentDevice, int currentFrequency){
+		
+		checkKoraFunction();
+		checkKoraFunction2();
+		
+		Object[] out;
+		Object[] file_path = {currentPath,currentFile};
+		/** 
+		 * Outer switch for different data type.
+		 * Needed, because for raw data measurement information about frequency is needed. 
+		 * Therefore the input array is different.
+		 */
+		try{
+		switch (currentData){
+		
+		// data type is in form of count/epoch measurement
+		
+		case "count/epoch measurement":
+//			Object[] file_path = {currentPath,currentFile};
+			MWNumericArray ma;
+			/**
+			 * Inner switch for different sensor type.
+			 * Needed, because every sensor saves the data differently.
+			 */
+			try {
+                switch (currentDevice) {
+                case "ActiGraph GT3X":
+                        out = matlabKoraFunctions.step1_loadFile(1, file_path);
+                        ma = (MWNumericArray) out[0];
+                        initialEpochPeriode = ma.getInt();
+                        break;
+                        
+                case "ActiGraph GT3X+":
+                	Logger.log(MessageType.NOTIFICATION, "No code implemented for GT3X+ count/epoch measurement");
+                	break;
+                case "GeneActive":
+                	Logger.log(MessageType.NOTIFICATION, "No code implemented for GeneActive count/epoch measurement");
+                	break;
+                case "Somnowatch":
+                	Logger.log(MessageType.NOTIFICATION, "No code implemented for Somnowatch count/epoch measurement");
+                	break;
+                case "Shimmer":
+                	Logger.log(MessageType.NOTIFICATION, "No code implemented for Shimmer count/epoch measurement");
+                	break;
+                case "Default":
+                	MainControlsBackend.enableDeviceCombo();
+                	Logger.log(MessageType.NOTIFICATION, "Please choose correct device type and browse again!");
+                	break;
+                }
+			} catch (MWException e1) {
+                Logger.log(
+                                MessageType.MATLAB_ERROR,
+                                "Error while loading "
+                                                + currentPath
+                                                + currentFile
+                                                + " into MATLAB routines! Kora Step1 incomplete!! \n Check device type and try again!");
+                return false;
+			}
 			Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
 			return true;
-		case "ActiGraph GT3X+":
-			try {
-				out = matlabKoraFunctions2.step1_loadFile_GT3xplus(1, file_path);
-				}
-
-			catch (MWException e1) {
-				Logger.log(MessageType.MATLAB_ERROR, "Error while loading "+ currentPath + currentFile +" into MATLAB routines! Kora Step1 incomplete!! \n Check device type and try again!");
-				return false;
-//				e1.printStackTrace();
-			} catch (Exception e) {
-				Logger.log(MessageType.ERROR, "Unknown error in step1 with GT3x+!");
-				return false;
-			}
-		
-			if(out != null && out.length > 0){
-				if(out[0] instanceof MWNumericArray) {
-					MWNumericArray ma = (MWNumericArray)out[0];
-					initialEpochPeriode = ma.getInt();
-				} else
-					Logger.log(MessageType.MATLAB_ERROR, "Wrong Matlab function return type!");
-			} else 
-				Logger.log(MessageType.MATLAB_ERROR, "Failed to receive epoch time from Matlab function!");
 			
-			Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
-			return true;
-		case "GeneActive":
-			try {
-				out = matlabKoraFunctions2.step1_loadFile_GeneActive(1, file_path);
-				}
-
-			catch (MWException e1) {
-				Logger.log(MessageType.MATLAB_ERROR, "Error while loading "+ currentPath + currentFile +" into MATLAB routines! Kora Step1 incomplete!! \n Check device type and try again!");
-				return false;
-//				e1.printStackTrace();
-			} catch (Exception e) {
-				Logger.log(MessageType.ERROR, "Unknown error in step1!");
-				return false;
+		// data type is in form of raw data measurement
+		case "raw data measurement":
+			Object[] file_path_hz = {currentPath,currentFile,currentFrequency};
+			switch (currentDevice){
+			case "ActiGraph GT3X": 
+				Logger.log(MessageType.NOTIFICATION, "No code implemented for GT3X raw data measurement");
+				break;
+			case "ActiGraph GT3X+":
+				out = matlabKoraFunctions2.step1_loadFile_GT3xplus(3, file_path_hz);
+				ma = (MWNumericArray) out[0];
+				initialEpochPeriode = ma.getInt();
+				break;
+			case "GeneActive":
+                out = matlabKoraFunctions2.step1_loadFile_GeneActive(1,file_path);
+                ma = (MWNumericArray) out[0];
+                initialEpochPeriode = ma.getInt();
+                break;
+			case "Somnowatch":
+				Logger.log(MessageType.NOTIFICATION, "No code implemented for Somnowatch raw data measurement");
+				break;
+			case "Shimmer":
+				Logger.log(MessageType.NOTIFICATION, "No code implemented for Shimmer raw data measurement");
+				break;
+			case "Default":
+				MainControlsBackend.enableDeviceCombo();
+				Logger.log(MessageType.NOTIFICATION, "Please choose correct device type and browse again!");
+				break;
 			}
-		
-			if(out != null && out.length > 0){
-				if(out[0] instanceof MWNumericArray) {
-					MWNumericArray ma = (MWNumericArray)out[0];
-					initialEpochPeriode = ma.getInt();
-				} else
-					Logger.log(MessageType.MATLAB_ERROR, "Wrong Matlab function return type!");
-			} else 
-				Logger.log(MessageType.MATLAB_ERROR, "Failed to receive epoch time from Matlab function!");
-			
-			Logger.log(MessageType.NOTIFICATION, "Successfully loaded " + currentPath + currentFile + " into MATLAB routines. Kora Step1 complete!");
-			return true;
-		case "Somnowatch":
-			break;
-		case "Shimmer":
-			break;
-		case "Default":
-			MainControlsBackend.enableDeviceCombo();
-			Logger.log(MessageType.NOTIFICATION, "Please choose correct device type and browse again!");
-			break;
+		}
+		} catch (MWException e1) {
+            Logger.log(
+                            MessageType.MATLAB_ERROR,
+                            "Error while loading "
+                                            + currentPath
+                                            + currentFile
+                                            + " into MATLAB routines! Kora Step1 incomplete!! \n Check device type and try again!");
+            return false;
 		}
 		return false;
 	}
 	
-	public static boolean RawDataToEpoch(String currentPath, String currentFile){
+	public static boolean RawDataToEpoch(String currentPath, String currentFile,
+			String currentDevice){
 		checkKoraFunction2();
 		
 		Object[] file_path = {currentPath, currentFile};

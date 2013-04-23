@@ -32,7 +32,7 @@ public class MainControls extends Composite {
 	protected Combo browseCombo;
 	protected Button browseButton;
 	protected static Combo deviceCombo;
-	protected Combo dataCombo;
+	protected static Combo dataCombo;
 	protected Scale epochScale;
 	protected Text epochText;
 	protected Label csvPreviewLabel;
@@ -46,8 +46,9 @@ public class MainControls extends Composite {
 	private Label lblFrequenzy;
 	protected Scale frequenzyScale;
 	private Label lblHz;
-	public Text frequenzyText;
+	protected Text frequenzyText;
 	public Button btnRawToCounts;
+	public Button btnLoad;
 
 	/**
 	 * Create the composite.
@@ -123,7 +124,7 @@ public class MainControls extends Composite {
 		labelSek.setText("s");
 		
 		lblFrequenzy = new Label(composite, SWT.NONE);
-		lblFrequenzy.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+//		lblFrequenzy.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		lblFrequenzy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		formToolkit.adapt(lblFrequenzy, true, true);
 		lblFrequenzy.setText("Frequency");
@@ -137,11 +138,11 @@ public class MainControls extends Composite {
 		frequenzyText = new Text(composite, SWT.BORDER | SWT.RIGHT);
 		frequenzyText.setText("1");
 		frequenzyText.setEditable(false);
-		frequenzyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		formToolkit.adapt(frequenzyText, true, true);
+		frequenzyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+//		formToolkit.adapt(frequenzyText, true, true);
 		
 		lblHz = new Label(composite, SWT.NONE);
-		lblHz.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+//		lblHz.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		formToolkit.adapt(lblHz, true, true);
 		lblHz.setText("Hz");
 		
@@ -169,6 +170,16 @@ public class MainControls extends Composite {
 		formToolkit.adapt(composite_1);
 		formToolkit.paintBordersFor(composite_1);
 		
+		btnLoad = new Button(composite_1, SWT.NONE);
+		btnLoad.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+			}
+		});
+		formToolkit.adapt(btnLoad, true, true);
+		btnLoad.setText("Load");
+		btnLoad.setBackground(new Color(null, 255, 0, 0));
+		
 		btnPlotAllData = new Button(composite_1, SWT.NONE);
 		btnPlotAllData.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -179,6 +190,7 @@ public class MainControls extends Composite {
 		btnPlotAllData.setText("Plot All Data + Cut");
 		btnPlotAllData.setBackground(new Color(null, 255, 0, 0));
 		
+	
 		btnPlotRelevantData = new Button(composite_1, SWT.NONE);
 		btnPlotRelevantData.addSelectionListener(new SelectionAdapter() {
 			@Override
